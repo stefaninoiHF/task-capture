@@ -4,82 +4,141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Task Capture</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f5f5f3; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
-  .container { width: 100%; max-width: 720px; }
-  h1 { font-size: 20px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #888780; margin-bottom: 1.5rem; }
-  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
-  textarea { width: 100%; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 8px; padding: 12px; font-size: 15px; font-family: inherit; resize: vertical; min-height: 100px; color: #1a1a18; background: #fafaf8; outline: none; transition: border-color 0.15s; }
-  textarea:focus { border-color: rgba(0,0,0,0.35); background: #fff; }
-  textarea::placeholder { color: #aaa; }
-  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
-  button { border: 0.5px solid rgba(0,0,0,0.2); background: transparent; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-family: inherit; cursor: pointer; transition: background 0.15s, transform 0.1s; color: #1a1a18; }
-  button:hover { background: rgba(0,0,0,0.05); }
-  button:active { transform: scale(0.98); }
-  button.primary { background: #1a1a18; color: #fff; border-color: transparent; }
-  button.primary:hover { background: #333; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .tasks-list { display: flex; flex-direction: column; gap: 10px; }
-  .task-item { border: 0.5px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 1rem; background: #fafaf8; }
-  .task-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-  .task-name { font-size: 14px; font-weight: 500; color: #1a1a18; flex: 1; }
-  .badges { display: flex; flex-wrap: wrap; gap: 5px; }
-  .badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
-  .badge-exec { background: #E6F1FB; color: #0C447C; }
-  .badge-disc { background: #FAEEDA; color: #633806; }
-  .badge-deleg { background: #EEEDFE; color: #3C3489; }
-  .badge-high { background: #FCEBEB; color: #791F1F; }
-  .badge-med { background: #EAF3DE; color: #27500A; }
-  .badge-low { background: #F1EFE8; color: #444441; }
-  .task-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
-  .meta-row { display: flex; gap: 4px; font-size: 12px; }
-  .meta-label { color: #888780; min-width: 70px; }
-  .meta-val { color: #444441; }
-  .status-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 1rem; }
-  .status-bar.info { background: #E6F1FB; color: #0C447C; }
-  .status-bar.success { background: #EAF3DE; color: #27500A; }
-  .status-bar.error { background: #FCEBEB; color: #791F1F; }
-  .section-label { font-size: 12px; font-weight: 500; color: #888780; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-  .edit-field { width: 100%; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 5px 8px; font-size: 12px; font-family: inherit; color: #1a1a18; background: #fff; outline: none; }
-  .edit-field:focus { border-color: rgba(0,0,0,0.35); }
-  .task-actions { display: flex; gap: 6px; margin-top: 10px; }
-  .task-actions button { font-size: 12px; padding: 5px 10px; }
-  .task-actions button.remove { border-color: rgba(220,50,50,0.3); color: #a32d2d; }
-  .task-actions button.remove:hover { background: #FCEBEB; }
-  .confirm-row { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 0.5px solid rgba(0,0,0,0.08); margin-top: 4px; }
-  .count-label { font-size: 13px; color: #888780; }
-  select.edit-field { cursor: pointer; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #111110;
+  --surface: #1C1C1A;
+  --border: rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.12);
+  --text-primary: #EEECEA;
+  --text-secondary: #9B9994;
+  --text-hint: #5A5955;
+  --accent: #EEECEA;
+  --tag-exec-bg: #152238;
+  --tag-exec-text: #6AABF7;
+  --tag-disc-bg: #2A1F08;
+  --tag-disc-text: #F0A832;
+  --tag-deleg-bg: #1E1835;
+  --tag-deleg-text: #A898F8;
+  --tag-high-bg: #2A1212;
+  --tag-high-text: #F87171;
+  --tag-med-bg: #0D2118;
+  --tag-med-text: #4ADE80;
+  --tag-low-bg: #232320;
+  --tag-low-text: #9B9994;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text-primary);
+  padding: 0;
+  margin: 0;
+}
+
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.header { margin-bottom: 32px; }
+.header h1 { font-size: 22px; font-weight: 500; letter-spacing: -0.3px; color: var(--text-primary); margin-bottom: 4px; }
+.header p { font-size: 14px; color: var(--text-secondary); font-weight: 300; }
+
+.input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+
+textarea { width: 100%; border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; color: var(--text-primary); background: transparent; resize: none; min-height: 88px; line-height: 1.6; }
+textarea::placeholder { color: var(--text-hint); }
+
+.input-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
+.hint { font-size: 12px; color: var(--text-hint); font-family: 'DM Mono', monospace; }
+.btn-row { display: flex; gap: 8px; }
+
+button { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); padding: 8px 14px; cursor: pointer; border: 1px solid var(--border-md); background: transparent; color: var(--text-primary); transition: all 0.15s ease; }
+button:hover { background: rgba(255,255,255,0.05); }
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+button.primary { background: var(--accent); color: #111110; border-color: transparent; }
+button.primary:hover { background: #D4D2CF; }
+
+.spinner { display: inline-block; width: 12px; height: 12px; border: 1.5px solid rgba(0,0,0,0.3); border-top-color: #111110; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status { display: none; font-size: 13px; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-weight: 400; }
+.status.info { background: #152238; color: #6AABF7; display: block; }
+.status.success { background: #0D2118; color: #4ADE80; display: block; }
+.status.error { background: #2A1212; color: #F87171; display: block; }
+
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+
+.tasks-list { display: flex; flex-direction: column; gap: 8px; }
+
+.task-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.task-name { font-size: 14px; font-weight: 500; color: var(--text-primary); line-height: 1.4; flex: 1; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0; }
+.tag { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.tag-exec { background: var(--tag-exec-bg); color: var(--tag-exec-text); }
+.tag-disc { background: var(--tag-disc-bg); color: var(--tag-disc-text); }
+.tag-deleg { background: var(--tag-deleg-bg); color: var(--tag-deleg-text); }
+.tag-high { background: var(--tag-high-bg); color: var(--tag-high-text); }
+.tag-med { background: var(--tag-med-bg); color: var(--tag-med-text); }
+.tag-low { background: var(--tag-low-bg); color: var(--tag-low-text); }
+
+.task-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; }
+.meta-row { display: flex; gap: 6px; font-size: 12px; align-items: baseline; }
+.meta-key { color: var(--text-hint); font-family: 'DM Mono', monospace; font-size: 11px; min-width: 64px; flex-shrink: 0; }
+.meta-val { color: var(--text-secondary); }
+
+.task-actions { display: flex; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.task-actions button { font-size: 12px; padding: 5px 10px; }
+.task-actions button.danger { border-color: rgba(248,113,113,0.2); color: #F87171; }
+.task-actions button.danger:hover { background: #2A1212; }
+
+.edit-field { width: 100%; border: 1px solid var(--border-md); border-radius: var(--radius-sm); padding: 6px 9px; font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--text-primary); background: #111110; outline: none; }
+.edit-field:focus { border-color: rgba(255,255,255,0.25); background: #1C1C1A; }
+select.edit-field { cursor: pointer; }
+
+.confirm-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.count { font-size: 13px; color: var(--text-secondary); }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Task capture</h1>
-  <p class="subtitle">Type your tasks in plain language. Claude will structure them and save to your sheet.</p>
-  <div style="background:#f1efe8;border-radius:8px;padding:10px 14px;margin-bottom:1.5rem;font-size:12px;color:#444441;">
-    <span style="font-weight:500;color:#2c2c2a;">To start:</span> open Terminal and run<br>
-    <code style="font-family:monospace;font-size:11px;color:#2c2c2a;">cd "/Users/stefan.platteau/Library/CloudStorage/GoogleDrive-stefan.platteau@hellofresh.com/My Drive/Claude Workspace" &amp;&amp; python3 -m http.server 8080</code><br>
-    Then open <code style="font-family:monospace;font-size:11px;color:#2c2c2a;">http://localhost:8080/task-capture.html</code>
+<div class="page">
+  <div class="header">
+    <h1>Task capture</h1>
+    <p>Type your tasks in plain language — Claude will structure and save them.</p>
   </div>
 
-  <div class="card">
-    <textarea id="input" placeholder="e.g. Send revised pricing deck to Marie by Thursday&#10;Tom should analyze SKU errors and report back by Friday&#10;Need to align with Sarah on campaign direction"></textarea>
-    <div class="btn-row">
-      <button class="primary" id="processBtn" onclick="processInput()">Structure tasks</button>
-      <button onclick="document.getElementById('input').value=''">Clear</button>
+  <div class="input-card">
+    <textarea id="input" placeholder="e.g. Send revised pricing deck to Marie by Thursday&#10;Tom should analyze SKU errors by Friday&#10;personal: book dentist next week"></textarea>
+    <div class="input-footer">
+      <span class="hint">one or many tasks at once</span>
+      <div class="btn-row">
+        <button onclick="document.getElementById('input').value=''">Clear</button>
+        <button class="primary" id="processBtn" onclick="processInput()">Structure tasks</button>
+      </div>
     </div>
   </div>
 
-  <div id="statusBar" style="display:none"></div>
+  <div id="statusBar" class="status"></div>
+
   <div id="tasksSection" style="display:none">
-    <p class="section-label">Structured tasks — review before saving</p>
+    <p class="section-label">Review before saving</p>
     <div class="tasks-list" id="tasksList"></div>
-    <div class="confirm-row" style="margin-top:12px">
-      <span class="count-label" id="countLabel"></span>
-      <div style="display:flex;gap:8px">
+    <div class="confirm-bar">
+      <span class="count" id="countLabel"></span>
+      <div class="btn-row">
         <button onclick="clearTasks()">Discard</button>
         <button class="primary" id="saveBtn" onclick="saveToSheet()">Save to sheet</button>
       </div>
@@ -88,18 +147,16 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXqMva0Mq0ZKEzAPUtkhGeV8311IeJThd1XqkC3L1E65ySJUVIBgkocEGy9U9pftIdeA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvdvYmPZXSBpervRIVWDzx_qVgXNRvgENJnx53od5liRxpqmY24Nt1oLJAMJERRKH5NA/exec';
 let pendingTasks = [];
 
 async function processInput() {
   const input = document.getElementById('input').value.trim();
   if (!input) return;
-
   const btn = document.getElementById('processBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Structuring...';
   showStatus('info', 'Sending to Claude...');
-
   try {
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -108,7 +165,6 @@ async function processInput() {
     });
     const data = await resp.json();
     if (!data.success) throw new Error(data.error || 'Unknown error');
-
     pendingTasks = data.tasks;
     renderTasks(data.tasks);
     showStatus('info', data.tasks.length + ' task' + (data.tasks.length !== 1 ? 's' : '') + ' structured — review below');
@@ -116,7 +172,6 @@ async function processInput() {
     showStatus('error', 'Something went wrong. Please try again.');
     console.error(e);
   }
-
   btn.disabled = false;
   btn.innerHTML = 'Structure tasks';
 }
@@ -124,35 +179,38 @@ async function processInput() {
 function renderTasks(tasks) {
   const list = document.getElementById('tasksList');
   list.innerHTML = '';
-
   tasks.forEach(function(t, i) {
     const div = document.createElement('div');
-    div.className = 'task-item';
+    div.className = 'task-card';
     div.id = 'task-' + i;
+    const delType = t.Delegation || t.TaskType || '';
     div.innerHTML =
-      '<div class="task-header">' +
+      '<div class="task-top">' +
         '<div class="task-name">' + esc(t.Task) + '</div>' +
-        '<div class="badges">' +
-          '<span class="badge ' + typeBadge(t.TaskType) + '">' + t.TaskType + '</span>' +
-          '<span class="badge ' + prioBadge(t.Priority) + '">' + t.Priority + '</span>' +
+        '<div class="tags">' +
+          '<span class="tag ' + delegTag(delType) + '">' + delType + '</span>' +
+          '<span class="tag ' + prioTag(t.Priority) + '">' + t.Priority + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="task-meta">' +
-        '<div class="meta-row"><span class="meta-label">Owner</span><span class="meta-val">' + esc(t.Owner) + '</span></div>' +
-        '<div class="meta-row"><span class="meta-label">Stakeholder</span><span class="meta-val">' + (esc(t.Stakeholder) || '—') + '</span></div>' +
-        '<div class="meta-row"><span class="meta-label">Due</span><span class="meta-val">' + (esc(t.Due) || '—') + '</span></div>' +
-        '<div class="meta-row"><span class="meta-label">Category</span><span class="meta-val">' + esc(t.Category) + '</span></div>' +
-        (t.Notes ? '<div class="meta-row" style="grid-column:1/-1"><span class="meta-label">Notes</span><span class="meta-val">' + esc(t.Notes) + '</span></div>' : '') +
+        metaRow('owner', t.Owner) +
+        metaRow('delegated to', t.DelegatedTo || '—') +
+        metaRow('due', t.Due || '—') +
+        metaRow('category', t.Category) +
+        (t.Notes ? '<div class="meta-row" style="grid-column:1/-1"><span class="meta-key">notes</span><span class="meta-val">' + esc(t.Notes) + '</span></div>' : '') +
       '</div>' +
       '<div class="task-actions">' +
         '<button onclick="editTask(' + i + ')">Edit</button>' +
-        '<button class="remove" onclick="removeTask(' + i + ')">Remove</button>' +
+        '<button class="danger" onclick="removeTask(' + i + ')">Remove</button>' +
       '</div>';
     list.appendChild(div);
   });
-
   document.getElementById('countLabel').textContent = tasks.length + ' task' + (tasks.length !== 1 ? 's' : '');
   document.getElementById('tasksSection').style.display = 'block';
+}
+
+function metaRow(key, val) {
+  return '<div class="meta-row"><span class="meta-key">' + key + '</span><span class="meta-val">' + esc(val || '') + '</span></div>';
 }
 
 function editTask(i) {
@@ -160,41 +218,42 @@ function editTask(i) {
   const div = document.getElementById('task-' + i);
   div.innerHTML =
     '<div style="display:flex;flex-direction:column;gap:8px">' +
-      '<div><div class="meta-label" style="margin-bottom:3px">Task</div><input class="edit-field" id="e-task-' + i + '" value="' + esc(t.Task) + '"></div>' +
+      '<div><div class="meta-key" style="margin-bottom:4px">task</div><input class="edit-field" id="e-task-' + i + '" value="' + esc(t.Task) + '"></div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Type</div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">type</div>' +
           '<select class="edit-field" id="e-type-' + i + '">' +
-            '<option' + (t.TaskType==='Execution'?' selected':'') + '>Execution</option>' +
-            '<option' + (t.TaskType==='Discussion'?' selected':'') + '>Discussion</option>' +
-            '<option' + (t.TaskType==='Delegated'?' selected':'') + '>Delegated</option>' +
+            '<option' + ((t.Delegation||t.TaskType)==='Execution'?' selected':'') + '>Execution</option>' +
+            '<option' + ((t.Delegation||t.TaskType)==='Discussion'?' selected':'') + '>Discussion</option>' +
+            '<option' + ((t.Delegation||t.TaskType)==='Delegated'?' selected':'') + '>Delegated</option>' +
           '</select></div>' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Priority</div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">priority</div>' +
           '<select class="edit-field" id="e-prio-' + i + '">' +
             '<option' + (t.Priority==='High'?' selected':'') + '>High</option>' +
             '<option' + (t.Priority==='Medium'?' selected':'') + '>Medium</option>' +
             '<option' + (t.Priority==='Low'?' selected':'') + '>Low</option>' +
           '</select></div>' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Owner</div><input class="edit-field" id="e-owner-' + i + '" value="' + esc(t.Owner) + '"></div>' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Stakeholder</div><input class="edit-field" id="e-stake-' + i + '" value="' + esc(t.Stakeholder) + '"></div>' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Due</div><input class="edit-field" type="date" id="e-due-' + i + '" value="' + (t.Due||'') + '"></div>' +
-        '<div><div class="meta-label" style="margin-bottom:3px">Category</div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">owner</div><input class="edit-field" id="e-owner-' + i + '" value="' + esc(t.Owner||'') + '"></div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">delegated to</div><input class="edit-field" id="e-deleg-' + i + '" value="' + esc(t.DelegatedTo||'') + '"></div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">due</div><input class="edit-field" type="date" id="e-due-' + i + '" value="' + (t.Due||'') + '"></div>' +
+        '<div><div class="meta-key" style="margin-bottom:4px">category</div>' +
           '<select class="edit-field" id="e-cat-' + i + '">' +
             '<option' + (t.Category==='Work'?' selected':'') + '>Work</option>' +
             '<option' + (t.Category==='Personal'?' selected':'') + '>Personal</option>' +
           '</select></div>' +
       '</div>' +
-      '<div><div class="meta-label" style="margin-bottom:3px">Notes</div><input class="edit-field" id="e-notes-' + i + '" value="' + esc(t.Notes||'') + '"></div>' +
-      '<div class="task-actions"><button onclick="saveEdit(' + i + ')">Save</button><button class="remove" onclick="removeTask(' + i + ')">Remove</button></div>' +
+      '<div><div class="meta-key" style="margin-bottom:4px">notes</div><input class="edit-field" id="e-notes-' + i + '" value="' + esc(t.Notes||'') + '"></div>' +
+      '<div class="task-actions"><button onclick="saveEdit(' + i + ')">Save</button><button class="danger" onclick="removeTask(' + i + ')">Remove</button></div>' +
     '</div>';
 }
 
 function saveEdit(i) {
   pendingTasks[i] = Object.assign({}, pendingTasks[i], {
     Task: document.getElementById('e-task-' + i).value,
+    Delegation: document.getElementById('e-type-' + i).value,
     TaskType: document.getElementById('e-type-' + i).value,
     Priority: document.getElementById('e-prio-' + i).value,
     Owner: document.getElementById('e-owner-' + i).value,
-    Stakeholder: document.getElementById('e-stake-' + i).value,
+    DelegatedTo: document.getElementById('e-deleg-' + i).value,
     Due: document.getElementById('e-due-' + i).value,
     Category: document.getElementById('e-cat-' + i).value,
     Notes: document.getElementById('e-notes-' + i).value
@@ -204,7 +263,7 @@ function saveEdit(i) {
 
 function removeTask(i) {
   pendingTasks.splice(i, 1);
-  if (pendingTasks.length === 0) { clearTasks(); return; }
+  if (!pendingTasks.length) { clearTasks(); return; }
   renderTasks(pendingTasks);
 }
 
@@ -212,6 +271,7 @@ function clearTasks() {
   pendingTasks = [];
   document.getElementById('tasksSection').style.display = 'none';
   document.getElementById('statusBar').style.display = 'none';
+  document.getElementById('statusBar').className = 'status';
 }
 
 async function saveToSheet() {
@@ -219,8 +279,7 @@ async function saveToSheet() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Saving...';
-  showStatus('info', 'Writing to Google Sheet...');
-
+  showStatus('info', 'Writing to sheet...');
   try {
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -229,35 +288,28 @@ async function saveToSheet() {
     });
     const data = await resp.json();
     if (!data.success) throw new Error(data.error || 'Unknown error');
-
-    showStatus('success', data.count + ' task' + (data.count !== 1 ? 's' : '') + ' saved to sheet');
+    showStatus('success', data.count + ' task' + (data.count !== 1 ? 's' : '') + ' saved.');
     document.getElementById('input').value = '';
     setTimeout(function() {
       pendingTasks = [];
       document.getElementById('tasksSection').style.display = 'none';
     }, 1500);
   } catch(e) {
-    showStatus('error', 'Failed to save. Check console for details.');
+    showStatus('error', 'Failed to save. Please try again.');
     console.error(e);
   }
-
   btn.disabled = false;
   btn.innerHTML = 'Save to sheet';
 }
 
 function showStatus(type, msg) {
   const bar = document.getElementById('statusBar');
-  bar.className = 'status-bar ' + type;
+  bar.className = 'status ' + type;
   bar.textContent = msg;
-  bar.style.display = 'flex';
 }
 
-function typeBadge(t) {
-  return t === 'Execution' ? 'badge-exec' : t === 'Discussion' ? 'badge-disc' : 'badge-deleg';
-}
-function prioBadge(p) {
-  return p === 'High' ? 'badge-high' : p === 'Low' ? 'badge-low' : 'badge-med';
-}
+function delegTag(t) { return t === 'Execution' ? 'tag-exec' : t === 'Discussion' ? 'tag-disc' : 'tag-deleg'; }
+function prioTag(p) { return p === 'High' ? 'tag-high' : p === 'Low' ? 'tag-low' : 'tag-med'; }
 function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
